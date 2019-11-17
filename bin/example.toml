@@ -1,0 +1,6 @@
+[fulcrum]
+index = "fulcrum"
+url = "https://api.fulcrumapp.com/api/v2/records.json"
+forms = ["xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"]
+  [fulcrum.headers]
+  X-ApiToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
