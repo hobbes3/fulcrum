@@ -57,7 +57,9 @@ def fulcrum_api():
                 })
 
                 event = {
-                    "__session_id": sr.session_id,
+                    "splunk_rest": {
+                        "session_id": sr.session_id,
+                    },
                     "index": sr.config["fulcrum"]["index"],
                     "sourcetype": "fulcrum_record",
                     "source": __file__,
