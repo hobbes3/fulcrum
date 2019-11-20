@@ -42,6 +42,9 @@ def fulcrum_api():
                     })
 
                 record.update({
+                    "splunk_rest": {
+                        "session_id": sr.session_id,
+                    },
                     "meta": {
                         "site_id": form_values.get("f93c", None),
                         "site_name": form_values.get("f3c3", None),
@@ -53,13 +56,10 @@ def fulcrum_api():
                         "note": form_values.get("d879", None),
                         "agency": form_values.get("d035", None),
                         "equipment": equipment_new,
-                    }
+                    },
                 })
 
                 event = {
-                    "splunk_rest": {
-                        "session_id": sr.session_id,
-                    },
                     "index": sr.config["fulcrum"]["index"],
                     "sourcetype": "fulcrum_record",
                     "source": __file__,
