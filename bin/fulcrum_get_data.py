@@ -4,23 +4,13 @@
 import json
 import logging
 import splunk_rest.splunk_rest as sr
-from splunk_rest.splunk_rest import rest_wrapped
+from splunk_rest.splunk_rest import splunk_rest, try_response
 
 def get_form(form_id):
-    logger.debug("Getting a form...", extra={"form_id": form_id})
+    @try_response
+    def send_form(r):
+        data = ""
 
-    fulcrum_url = sr.config["fulcrum"]["url"]
-    fulcrum_headers = sr.config["fulcrum"]["headers"]
-
-    data = ""
-
-    fulcrum_params = {
-        "form_id": form_id,
-    }
-
-    r = s.get(fulcrum_url, headers=fulcrum_headers, params=fulcrum_params)
-
-    try:
         records = r.json()["records"]
 
         logger.debug("Found records!", extra={"record_count": len(records)})
@@ -56,7 +46,6 @@ def get_form(form_id):
                 },
             })
 
-            index = "main" if sr.debug else sr.config["fulcrum"]["index"]
 
             event = {
                 "index": index,
@@ -66,16 +55,24 @@ def get_form(form_id):
             }
 
             data += json.dumps(event)
-    except:
-        logger.exception("", extra={"request_id": r.request_id})
 
-    cribl_url = sr.config["hec"]["url"]
-    cribl_headers = sr.config["hec"]["headers"]
+        logger.debug("Sending data to Splunk...")
+        s.post(cribl_url, headers=cribl_headers, data=data)
 
-    logger.debug("Sending data to Splunk...")
-    s.post(cribl_url, headers=cribl_headers, data=data)
+    logger.debug("Getting a form...", extra={"form_id": form_id})
 
-@rest_wrapped
+    fulcrum_url = sr.config["fulcrum"]["url"]
+    fulcrum_headers = sr.config["fulcrum"]["headers"]
+
+    fulcrum_params = {
+        "form_id": form_id,
+    }
+
+    r = s.get(fulcrum_url, headers=fulcrum_headers, params=fulcrum_params)
+
+    send_form(r)
+
+@splunk_rest
 def fulcrum_api():
     form_ids = sr.config["fulcrum"]["forms"]
 
@@ -84,7 +81,13 @@ def fulcrum_api():
     sr.multiprocess(get_form, form_ids)
 
 if __name__ == "__main__":
+    script_args = sr.get_script_args()
     logger = logging.getLogger("splunk_rest.splunk_rest")
     s = sr.retry_session()
+
+    index = "main" if script_args.test else sr.config["fulcrum"]["index"]
+
+    cribl_url = sr.config["hec"]["url"]
+    cribl_headers = sr.config["hec"]["headers"]
 
     fulcrum_api()
