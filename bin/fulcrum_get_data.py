@@ -8,7 +8,7 @@ from splunk_rest.splunk_rest import splunk_rest, try_response
 
 def get_form(form_id):
     @try_response
-    def send_form(r, *args, **kwargs):
+    def send_form(r):
         data = ""
 
         records = r.json()["records"]
